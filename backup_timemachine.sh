@@ -10,6 +10,32 @@ lock_file=./tm_backup.pid
 fail_file=./tm_backup.stop
 sync_log=./tm_backup.log
 
+function sync_dir() {
+  src=$1
+  dst=$2
+
+  echo "[$(date)]: Starting sync of $src -> $dst" >> "$sync_log"
+  rsync -av --delete "$src" "$dst"                >> "$sync_log" 2>&1
+  echo "[$(date)]: Finished sync of $src -> $dst" >> "$sync_log"
+  echo ""                                         >> "$sync_log"
+}
+
+function safe_sync() {
+  src=$1
+  dst=$2
+
+  while [ "$(macusers  | grep -v ^PID | grep -v "root.*root")" != "" ]; do
+    sleep 100
+  done
+
+  sync_dir "$source" "$target_root"
+}
+
+function send_error_alert() {
+  /usr/local/sbin/sendAlert.sh 1100 "$target" "no" "good" "backup_timemachine.sh"
+  curl -XPOST -d "format=json" 'http://127.0.0.1/api/1.0/rest/alert_notify' > /dev/null 2>&1
+}
+
 if [ -f "$fail_file" ]; then
   exit 1
 fi
@@ -23,28 +49,15 @@ echo $$ > "${lock_file}"
 
 if [ ! -d "$target" ]; then
   touch "$fail_file"
-  sendAlert.sh 1100 "$target" "no" "good" "backup_timemachine.sh"
-  curl -XPOST -d "format=json" 'http://127.0.0.1/api/1.0/rest/alert_notify' > /dev/null 2>&1
+  send_error_alert
   exit 2
 fi
 
-rsync -av --delete "$target" "$last_week" > "$sync_log" 2>&1
+sync_dir  "$target" "$last_week"
 
-rsync -av --delete "$source" "$target_root" > "$sync_log" 2>&1
-
-while [ "$(macusers  | grep -v ^PID | grep -v "root.*root")" != "" ]; do
-  sleep 100
-  rsync -av --delete "$source" "$target_root" > "$sync_log" 2>&1
-done
-
-rsync -av --delete "$source" "$target_root" > "$sync_log" 2>&1
-
-while [ "$(macusers  | grep -v ^PID | grep -v "root.*root")" != "" ]; do
-  sleep 100
-  rsync -av --delete "$source" "$target_root" > "$sync_log" 2>&1
-done
-
-rsync -av --delete "$source" "$target_root" > "$sync_log" 2>&1
+safe_sync "$source" "$target_root"
+sleep 100
+safe_sync "$source" "$target_root"
 
 rm -f "${lock_file}"
 
