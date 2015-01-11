@@ -31,3 +31,9 @@ Example:
 ```bash
 0 4 * * 0 /root/my_cloud_scripts/backup_timemachine.sh /nfs/TimeMachineBackup /path/to/my/backup/directory
 ```
+
+## License
+
+Copyright (c) 2015 Joe Sortelli
+
+MIT License
