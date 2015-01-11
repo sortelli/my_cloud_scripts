@@ -4,7 +4,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 if [ "$#" != "2" ]; then
   echo "usage: backup_timemachine.sh source_dir target_dir"
-  exit 4
+  exit 1
 fi
 
 source=$1                                    #/nfs/HomeCloudTimeMachine
@@ -43,7 +43,7 @@ function send_error_alert() {
 }
 
 if [ -f "$fail_file" ]; then
-  exit 1
+  exit 2
 fi
 
 if [ -e "${lock_file}" ] && kill -0 `cat "${lock_file}"`; then
@@ -56,7 +56,7 @@ echo $$ > "${lock_file}"
 if [ ! -d "$target" ]; then
   touch "$fail_file"
   send_error_alert
-  exit 2
+  exit 4
 fi
 
 sync_dir  "$target" "$last_week"
