@@ -2,10 +2,16 @@
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
-source=/nfs/HomeCloudTimeMachine
-target=/usb_backup_disk/HomeCloudTimeMachine
-target_root=/usb_backup_disk
-last_week=/usb_backup_disk/last_week
+if [ "$#" != "2" ]; then
+  echo "usage: backup_timemachine.sh source_dir target_dir"
+  exit 4
+fi
+
+source=$1                                    #/nfs/HomeCloudTimeMachine
+target_root=$2                               #/usb_backup_disk
+target="${target_root}/$(basename $source)"  #/usb_backup_disk/HomeCloudTimeMachine"
+last_week="${target_root}/last_week"
+
 lock_file=./tm_backup.pid
 fail_file=./tm_backup.stop
 sync_log=./tm_backup.log
