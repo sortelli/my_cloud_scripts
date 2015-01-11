@@ -71,6 +71,9 @@ safe_sync "$source" "$target_root"
 sleep $sleep_time
 safe_sync "$source" "$target_root"
 
+cat "$sync_log" >> "${target_root}/$(basename "$sync_log")"
+rm "$sync_log"
+
 rm -f "${lock_file}"
 
 exit 0
