@@ -1,0 +1,3 @@
+# root user crontab entries
+
+0 4 * * 0 /root/my_cloud_scripts/backup_timemachine.sh /nfs/HomeCloudTimeMachine /usb_backup_disk
