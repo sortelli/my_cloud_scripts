@@ -38,8 +38,13 @@ function safe_sync() {
 }
 
 function send_error_alert() {
-  /usr/local/sbin/sendAlert.sh 1100 "$target" "no" "good" "backup_timemachine.sh"
-  curl -XPOST -d "format=json" 'http://127.0.0.1/api/1.0/rest/alert_notify' > /dev/null 2>&1
+  wd_alert="/usr/local/sbin/sendAlert.sh"
+  if [ -x "$wd_alert" ]; then
+    "$wd_alert" 1100 "$target" "no" "good" "backup_timemachine.sh"
+    curl -XPOST -d "format=json" 'http://127.0.0.1/api/1.0/rest/alert_notify' > /dev/null 2>&1
+  else
+    echo "Error: ${target} does not exist"
+  fi
 }
 
 if [ -f "$fail_file" ]; then
