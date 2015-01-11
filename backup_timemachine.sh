@@ -12,6 +12,7 @@ target_root=$2                               #/usb_backup_disk
 target="${target_root}/$(basename $source)"  #/usb_backup_disk/HomeCloudTimeMachine"
 last_week="${target_root}/last_week"
 
+sleep_time=100
 lock_file=./tm_backup.pid
 fail_file=./tm_backup.stop
 sync_log=./tm_backup.log
@@ -31,7 +32,7 @@ function safe_sync() {
   dst=$2
 
   while [ "$(macusers  | grep -v ^PID | grep -v "root.*root")" != "" ]; do
-    sleep 100
+    sleep $sleep_time
   done
 
   sync_dir "$source" "$target_root"
@@ -67,7 +68,7 @@ echo $$ > "${lock_file}"
 sync_dir  "$target" "$last_week"
 
 safe_sync "$source" "$target_root"
-sleep 100
+sleep $sleep_time
 safe_sync "$source" "$target_root"
 
 rm -f "${lock_file}"
