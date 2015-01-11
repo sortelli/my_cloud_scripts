@@ -55,14 +55,14 @@ if [ -e "${lock_file}" ] && kill -0 `cat "${lock_file}"`; then
   exit 3
 fi
 
-trap "rm -f "${lock_file}"; exit 0" INT TERM EXIT
-echo $$ > "${lock_file}"
-
 if [ ! -d "$target" ]; then
   touch "$fail_file"
   send_error_alert
   exit 4
 fi
+
+trap "rm -f "${lock_file}"; exit 0" INT TERM EXIT
+echo $$ > "${lock_file}"
 
 sync_dir  "$target" "$last_week"
 
