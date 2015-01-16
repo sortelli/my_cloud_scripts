@@ -46,7 +46,14 @@ function send_error_alert() {
     # Publish error about missing backup disk using existing
     # WD My Cloud alert facility.
     "$wd_alert" 1100 "$target" "no" "good" "backup_timemachine.sh"
-    curl -XPOST -d "format=json" 'http://127.0.0.1/api/1.0/rest/alert_notify' > /dev/null 2>&1
+
+    # For some reason, that doesn't seem to actually send an email.
+    # The above script will hit /rest/alert_notify which returns:
+    #   "alert_notify_status": "NO_ALERT_EMAIL_HAS_BEEN_SENT"
+    # Maybe I need to try different alert codes above.  I don't feel
+    # like digging through their stupid php code to debug. Will just
+    # send a test email instead.
+    curl -XPOST -d "format=json" 'http://127.0.0.1/api/2.1/rest/alert_test_email' > /dev/null 2>&1
   else
     echo "Error: ${target} does not exist"
   fi
